@@ -1,15 +1,15 @@
 from setuptools import setup
 
+
 def get_plat_name():
     """Parses value of the --plat-name from the program arguments."""
 
 
-
 APP = ['xtiply.py']
-DATA_FILES = []
+DATA_FILES = [('', ['logo.png']), ('', ['app_icon.png'])]
 OPTIONS = {
-'argv_emulation': True,
-'iconfile': 'app_icon.png',
+    'argv_emulation': False,
+    'iconfile': 'app_icon.png',
 }
 
 setup(
