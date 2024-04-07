@@ -5,9 +5,12 @@ def get_plat_name():
 
 
 
-APP = ['test.py']
+APP = ['xtiply.py']
 DATA_FILES = []
-OPTIONS = {}
+OPTIONS = {
+'argv_emulation': True,
+'iconfile': 'app_icon.png',
+}
 
 setup(
     app=APP,
