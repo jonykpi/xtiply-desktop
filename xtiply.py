@@ -1,3 +1,5 @@
+import base64
+import json
 import re
 import tkinter as tk
 import webbrowser
@@ -11,6 +13,8 @@ import subprocess
 import platform
 import shutil
 import requests
+import mimetypes
+
 
 
 
@@ -27,8 +31,8 @@ class APICaller:
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             try:
                 if folder_path.get() and self.email:
-                    send_file_to_api()
-                    receive_file_to_api()
+                    send_email_with_attachment()
+                   # receive_file_to_api()
                     time.sleep(10)  # Wait for 10 seconds
                     result.config(text=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                 else:
@@ -113,7 +117,7 @@ def send_file_to_api():
     dir = folder_path.get()
 
     # Replace 'http://example.com/upload' with the URL of your API
-    api_url = 'https://webhook.site/b1c10541-ba74-46b4-be62-18c77e9dfa4a'
+    api_url = 'https://webhook.site/6d7154db-eb6e-47ef-bf9f-6d98e6080d11'
 
     for filename in os.listdir(folder_path.get()):
         file_path = os.path.join(folder_path.get(), filename)
@@ -136,6 +140,92 @@ def send_file_to_api():
 
         # else:
     #  print(f"Failed to send file {file_path}. Status code: {response.status_code}")
+def send_email_with_attachment():
+    email = email_entry.get()
+    for filename in os.listdir(folder_path.get()):
+        file_path = os.path.join(folder_path.get(), filename)
+        file_extension = file_path.split('.')[-1].lower()
+        mime_type_mapping = {
+            'png': 'image/png',
+            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'doc': 'application/msword',
+            'docs': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg'
+        }
+        content_type = mime_type_mapping.get(file_extension, "None")
+
+        # If content type not found in mapping, use the default from mimetypes
+        print(content_type, "content_type")
+        if content_type != "None":
+            print(file_path,"file_pathfile_pathfile_path")
+            with open(file_path, 'rb') as file:
+              file_content = file.read()
+            # Encode the file content in base64
+            encoded_file_content = base64.b64encode(file_content).decode('utf-8')
+
+            # Determine the content type based on the file extension
+            content_type, _ = mimetypes.guess_type(file_path)
+
+            # Construct the email data
+            email_data = {
+                "headers": {
+                    "to": email,
+                    "subject": "",
+                    "mime_version": "1.0",
+                    "content_type": "multipart/mixed; boundary=00000000000041a55706112728cd"
+                },
+                "envelope": {
+                    "to": email,
+                    "recipients": [email],
+                    "from": "your_email@example.com",
+                    "helo_domain": "your_domain.com",
+                    "remote_ip": "your_remote_ip",
+                    "tls": True,
+                    "tls_cipher": "TLSv1.3",
+                    "md5": "your_md5_hash",
+                    "spf": {
+                        "result": "neutral",
+                        "domain": "example.com"
+                    }
+                },
+                "plain": "-- \r\n*Best regards*\r\n*Your Name*\r\nYour Job Title",
+                "html": "<div dir=\"ltr\"><br clear=\"all\"><div><br></div><span class=\"gmail_signature_prefix\">-- </span><br><div dir=\"ltr\" class=\"gmail_signature\" data-smartmail=\"gmail_signature\"><div dir=\"ltr\"><b style=\"color:rgb(56,118,29);font-family:&quot;comic sans ms&quot;,sans-serif\">Best regards</b><div><font face=\"comic sans ms, sans-serif\"><i><b><font style=\"background-color:rgb(255,255,255)\" color=\"#666666\">Your Name</font></b></i><br></font><div><span style=\"color:rgb(68,68,68);font-family:&quot;comic sans ms&quot;,sans-serif\">Your Job Title</span></div></div></div></div></div>",
+                "reply_plain": None,
+                "attachments": [
+                    {
+                        "content": encoded_file_content,
+                        "file_name": file_path.split("/")[-1],
+                        "content_type": content_type or "application/octet-stream",
+                        "size": str(len(encoded_file_content)),
+                        "disposition": "attachment",
+                        "content_id": "<f_lsie9zgc0>"
+                    }
+                ]
+            }
+
+            # Convert to JSON
+            email_json = json.dumps(email_data)
+
+            # # Call your API
+            api_url = "https://webhook.site/6d7154db-eb6e-47ef-bf9f-6d98e6080d11"
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(api_url, data=email_json, headers=headers)
+
+            if response.status_code == 200:
+                destination_path = folder_path.get() + "/uploaded"
+                if not os.path.exists(destination_path):
+                    os.makedirs(destination_path)
+
+                filename = os.path.basename(file_path)
+                timestamp = int(time.time())
+                new_filename = f"{timestamp}_{filename}"
+                destination_path = os.path.join(destination_path, new_filename)
+                shutil.move(file_path, destination_path)
+
+            # Print the response
+            print(response.text)
+
 
 
 def start_api():
