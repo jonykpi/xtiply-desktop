@@ -32,7 +32,7 @@ class APICaller:
             try:
                 if folder_path.get() and self.email:
                     send_email_with_attachment()
-                   # receive_file_to_api()
+                    receive_file_to_api()
                     time.sleep(10)  # Wait for 10 seconds
                     result.config(text=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                 else:
@@ -112,34 +112,7 @@ def receive_file_to_api():
         print("Failed to fetch files from the API.")
 
 
-# print(api_url,"this is print froom new")
-def send_file_to_api():
-    dir = folder_path.get()
-
-    # Replace 'http://example.com/upload' with the URL of your API
-    api_url = 'https://webhook.site/6d7154db-eb6e-47ef-bf9f-6d98e6080d11'
-
-    for filename in os.listdir(folder_path.get()):
-        file_path = os.path.join(folder_path.get(), filename)
-        print(file_path)
-
-        # #Create a multipart/form-data request with the file
-        # with open(file_path, 'rb') as file:
-        #     files = {'file': file}
-        #     response = requests.post(api_url, files=files)
-        #
-        # # Check if the request was successful
-        # if response.status_code == 200:
-        #     destination_path = dir + "/uploaded"
-        #     os.makedirs(destination_path, exist_ok=True)
-        #     filename = os.path.basename(file_path)
-        #     timestamp = int(time.time())
-        #     new_filename = f"{timestamp}_{filename}"
-        #     destination_path = os.path.join(destination_path, new_filename)
-        #     shutil.move(file_path, destination_path)
-
-        # else:
-    #  print(f"Failed to send file {file_path}. Status code: {response.status_code}")
+# print(api_url,"this is print froom new"
 def send_email_with_attachment():
     email = email_entry.get()
     for filename in os.listdir(folder_path.get()):
@@ -150,8 +123,9 @@ def send_email_with_attachment():
             'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'doc': 'application/msword',
             'docs': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg'
+            'jpg': 'image/jpg',
+            'jpeg': 'image/jpeg',
+            'pdf': 'application/pdf'
         }
         content_type = mime_type_mapping.get(file_extension, "None")
 
@@ -189,8 +163,8 @@ def send_email_with_attachment():
                         "domain": "example.com"
                     }
                 },
-                "plain": "-- \r\n*Best regards*\r\n*Your Name*\r\nYour Job Title",
-                "html": "<div dir=\"ltr\"><br clear=\"all\"><div><br></div><span class=\"gmail_signature_prefix\">-- </span><br><div dir=\"ltr\" class=\"gmail_signature\" data-smartmail=\"gmail_signature\"><div dir=\"ltr\"><b style=\"color:rgb(56,118,29);font-family:&quot;comic sans ms&quot;,sans-serif\">Best regards</b><div><font face=\"comic sans ms, sans-serif\"><i><b><font style=\"background-color:rgb(255,255,255)\" color=\"#666666\">Your Name</font></b></i><br></font><div><span style=\"color:rgb(68,68,68);font-family:&quot;comic sans ms&quot;,sans-serif\">Your Job Title</span></div></div></div></div></div>",
+                "plain": "",
+                "html": "",
                 "reply_plain": None,
                 "attachments": [
                     {
@@ -208,7 +182,7 @@ def send_email_with_attachment():
             email_json = json.dumps(email_data)
 
             # # Call your API
-            api_url = "https://webhook.site/6d7154db-eb6e-47ef-bf9f-6d98e6080d11"
+            api_url = "https://beta-admin.docs2ai.com/api/incoming"
             headers = {'Content-Type': 'application/json'}
             response = requests.post(api_url, data=email_json, headers=headers)
 
